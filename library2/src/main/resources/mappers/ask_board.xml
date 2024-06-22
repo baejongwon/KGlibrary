@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="com.kg.library.notice.Ask_board_Mapper">
+
+    <select id="ask_board">
+        <choose>
+            <when test="search_select == '제목'">
+                SELECT B.* FROM (
+                    SELECT ROW_NUMBER() OVER (ORDER BY ref DESC, step ASC) AS r, A.* 
+                    FROM (SELECT ask_board.* FROM ask_board WHERE title LIKE CONCAT('%', #{search}, '%') ORDER BY ref DESC, step ASC) A
+                ) B WHERE B.r BETWEEN #{begin} AND #{end}
+            </when>
+            <when test="search_select == '글쓴이'">
+                SELECT B.* FROM (
+                    SELECT ROW_NUMBER() OVER (ORDER BY ref DESC, step ASC) AS r, A.* 
+                    FROM (SELECT ask_board.* FROM ask_board WHERE id LIKE CONCAT('%', #{search}, '%') ORDER BY ref DESC, step ASC) A
+                ) B WHERE B.r BETWEEN #{begin} AND #{end}
+            </when>
+            <otherwise>
+                SELECT B.* FROM (
+                    SELECT ROW_NUMBER() OVER (ORDER BY ref DESC, step ASC) AS r, A.* 
+                    FROM (SELECT ask_board.* FROM ask_board ORDER BY ref DESC, step ASC) A
+                ) B WHERE B.r BETWEEN #{begin} AND #{end}
+            </otherwise>
+        </choose>
+    </select>
+    
+    <select id="maxNum" resultType="Integer">
+        SELECT COALESCE(MAX(no), 0) + 1 FROM ask_board
+    </select>
+    
+    <select id="totalCount">
+        <choose>
+            <when test="search_select == '제목'">
+                SELECT COUNT(no) FROM ask_board WHERE title LIKE CONCAT('%', #{search}, '%')
+            </when>
+            <when test="search_select == '글쓴이'">
+                SELECT COUNT(no) FROM ask_board WHERE id LIKE CONCAT('%', #{search}, '%')
+            </when>
+            <otherwise>
+                SELECT COUNT(no) FROM ask_board
+            </otherwise>
+        </choose>
+    </select>
+    <select id="ask_board_Content" resultType="com.kg.library.notice.Ask_board_DTO">
+        SELECT * FROM ask_board WHERE no = #{n}
+    </select>
+    
+    <insert id="ask_board_writeProc" useGeneratedKeys="true" keyProperty="no">
+        INSERT INTO ask_board (title, id, content, writeDate, hits, image, ref, step, depth)
+        VALUES (#{title}, #{id}, #{content}, #{writeDate}, 0, #{image}, #{ref}, #{step}, #{depth})
+    </insert>
+    
+    <update id="incrementHits">
+        UPDATE ask_board SET hits = hits + 1 WHERE no = #{n}
+    </update>
+    
+    <update id="updateStep">
+        UPDATE ask_board SET step = step + 1 WHERE ref = #{ref} AND step > #{step}
+    </update>
+    
+    <update id="ask_board_ModifyProc">
+        UPDATE ask_board SET title = #{title}, content = #{content}, image = #{image} WHERE no = #{no}
+    </update>
+    
+    <delete id="ContentDeleteProc">
+        DELETE FROM ask_board WHERE no = #{n}
+    </delete>
+</mapper>
+<!-- 
+<mapper namespace="com.kg.library.notice.Ask_board_Mapper">
+
+
+	<select id="ask_board">
+		<choose>
+			<when test="search_select == '제목'">
+				SELECT B.* FROM (SELECT rownum as r, A.* FROM (SELECT
+				ask_board.* FROM ask_board WHERE title like '%'||#{search}||'%'  ORDER BY ref DESC, step ASC)A)B WHERE B.r BETWEEN #{begin} and #{end}
+			</when>
+			<when test="search_select == '글쓴이'">
+				SELECT B.* FROM (SELECT rownum as r, A.* FROM (SELECT
+				ask_board.* FROM ask_board WHERE id like '%'||#{search}||'%' ORDER BY ref DESC, step ASC)A)B WHERE B.r BETWEEN #{begin} and #{end}
+			</when>
+			<otherwise>
+				SELECT B.* FROM (SELECT rownum as r, A.* FROM (SELECT
+				ask_board.* FROM ask_board ORDER BY ref DESC, step ASC)A)B WHERE B.r
+				BETWEEN #{begin} and #{end}
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="maxNum" resultType="Integer">
+		SELECT nvl(max(no), 0)+1 FROM ask_board
+	</select>
+	
+	<select id="totalCount">
+			<choose>
+			<when test="search_select == '제목'">
+				SELECT count(no) FROM ask_board where title like '%'||#{search}||'%'
+			</when>
+			<when test="search_select == '글쓴이'">
+				SELECT count(no) FROM ask_board where id like '%'||#{search}||'%'
+			</when>
+			<otherwise>
+				SELECT count(no) FROM ask_board
+			</otherwise>
+		</choose>
+	</select>
+	<select id="ask_board_Content"
+		resultType="com.kg.library.notice.Ask_board_DTO">
+		SELECT * FROM ask_board where no = #{n}
+	</select>
+	
+	<insert id="ask_board_writeProc">
+		<selectKey order="BEFORE" keyProperty="no" resultType="int">
+			SELECT NVL(max(no), 0)+1 FROM ask_board 
+		</selectKey>
+		INSERT INTO ask_board
+		VALUES(#{no}, #{title}, #{id}, #{content},
+		#{writeDate},0,#{image},#{ref}, #{step}, #{depth})
+	</insert>
+	
+	<update id="incrementHits">
+		update ask_board set hits=hits+1 where no=#{n}
+	</update>
+	
+	<update id="updateStep">
+		UPDATE ask_board SET step=step+1 WHERE ref = #{ref} AND step > #{step}
+	</update>
+	
+	<update id="ask_board_ModifyProc">
+		UPDATE ask_board SET title=#{title}, content=#{content}, image=#{image} WHERE no=#{no}
+	</update>
+	<delete id="ContentDeleteProc">
+		DELETE FROM ask_board WHERE no=#{n}
+	</delete>
+</mapper>
+ -->
+

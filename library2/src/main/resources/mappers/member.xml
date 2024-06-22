@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kg.library.member.IMemberMapper">
+ 
+<!--  create table member(
+name varchar2(30) not null,
+id varchar2(20) not null primary key,
+pw varchar2(12) not null,
+confirm varchar2(12) not null,
+tel varchar2(20) not null,
+email varchar2(50) not null,
+address varchar2(50),
+book varchar2(50),
+studyroom varchar2(50)); -->
+	<resultMap type="com.kg.library.member.MemberDTO" id="member">
+		<id column="id" property="id"/>
+		<result column="pw" property="pw"/>
+		<result column="name" property="name"/>
+		<result column="email" property="email"/>
+		<result column="address" property="address"/>
+		<result column="tel" property="tel"/>	
+	</resultMap>
+	
+	<!-- <insert id="joinProc">
+		INSERT INTO member
+		VALUES(#{id}, #{pw}, #{name}, #{email}, #{address}, #{tel})
+		INSERT INTO member (id, pw, name, email, address, tel)
+        VALUES (?, ?, ?, ?, ?, ?);
+	</insert>
+	
+	<select id="login" resultMap="member">
+		SELECT * FROM member WHERE id=#{id}
+		SELECT * FROM member WHERE id = ?;
+	</select>
+	
+	<select id="memberInfo" resultMap="member">
+	<choose>
+		<when test="select == 'id'">
+			SELECT AAA.* 
+			FROM (SELECT rownum as r, id, name, email, tel FROM member WHERE id like '%'||#{search}||'%')AAA 
+			WHERE AAA.r BETWEEN #{begin} AND #{end}</when>
+		<when test="select == 'tel'">
+			SELECT AAA.* 
+			FROM (SELECT rownum as r, id, name, email, tel FROM member WHERE tel like '%'||#{search}||'%')AAA  
+			WHERE AAA.r BETWEEN #{begin} AND #{end}
+		</when>
+		<otherwise>
+			SELECT AAA.* 
+			FROM (SELECT rownum as r, id, name, email, tel FROM member)AAA 
+			WHERE AAA.r BETWEEN #{begin} AND #{end}
+		</otherwise>
+	</choose>
+	</select>
+	
+	<select id="totalCount" >
+		<choose>
+			<when test="select == 'id'">
+				SELECT count(id) FROM member WHERE id like '%'||#{search}||'%'
+			</when>
+			<when test="select == 'tel'">
+				SELECT count(id) FROM member WHERE tel like '%'||#{search}||'%'
+			</when>
+			<otherwise>
+				SELECT count(id) FROM member
+			</otherwise>
+		</choose>
+	</select>
+	
+	<update id="updateProc">
+		UPDATE member 
+		SET pw=#{pw}, name=#{name}, email=#{email}, address=#{address}, tel=#{tel} 
+		WHERE id=#{id}
+	</update>
+	
+	<delete id="deleteProc">
+		DELETE FROM member WHERE id=#{id}
+	</delete>
+	
+	<select id="findId" resultMap="member">
+		SELECT * FROM member WHERE name=#{name} AND tel=#{tel}
+	</select>
+	
+	<select id="findIdResult">
+		SELECT id FROM member WHERE name=#{name} AND tel=#{tel}
+	</select>
+	
+	<select id="findPw" resultMap="member">
+		SELECT * FROM member WHERE id=#{id} AND tel=#{tel}
+	</select>
+	
+	<update id="findPwResult">
+		UPDATE member SET pw=#{secretPass} WHERE id=#{id} AND tel=#{tel}
+	</update> -->
+	
+	<insert id="joinProc">
+	INSERT INTO member (id, pw, name, email, address, tel)
+	VALUES (#{id}, #{pw}, #{name}, #{email}, #{address}, #{tel});
+</insert>
+
+
+<select id="login" resultMap="member">
+	SELECT * FROM member WHERE id = #{id};
+</select>
+
+
+<select id="memberInfo" resultMap="member">
+	<choose>
+		<when test="select == 'id'">
+			SELECT AAA.* 
+			FROM (SELECT ROW_NUMBER() OVER() as r, id, name, email, tel FROM member WHERE id LIKE CONCAT('%', #{search}, '%')) AAA
+			WHERE AAA.r BETWEEN #{begin} AND #{end}
+		</when>
+		<when test="select == 'tel'">
+			SELECT AAA.* 
+			FROM (SELECT ROW_NUMBER() OVER() as r, id, name, email, tel FROM member WHERE tel LIKE CONCAT('%', #{search}, '%')) AAA
+			WHERE AAA.r BETWEEN #{begin} AND #{end}
+		</when>
+		<otherwise>
+			SELECT AAA.* 
+			FROM (SELECT ROW_NUMBER() OVER() as r, id, name, email, tel FROM member) AAA
+			WHERE AAA.r BETWEEN #{begin} AND #{end}
+		</otherwise>
+	</choose>
+</select>
+
+
+<select id="totalCount" resultType="int">
+	<choose>
+		<when test="select == 'id'">
+			SELECT COUNT(id) FROM member WHERE id LIKE CONCAT('%', #{search}, '%')
+		</when>
+		<when test="select == 'tel'">
+			SELECT COUNT(id) FROM member WHERE tel LIKE CONCAT('%', #{search}, '%')
+		</when>
+		<otherwise>
+			SELECT COUNT(id) FROM member
+		</otherwise>
+	</choose>
+</select>
+
+<update id="updateProc">
+	UPDATE member 
+	SET pw=#{pw}, name=#{name}, email=#{email}, address=#{address}, tel=#{tel} 
+	WHERE id=#{id};
+</update>
+
+<delete id="deleteProc">
+	DELETE FROM member WHERE id=#{id};
+</delete>
+
+<select id="findId" resultMap="member">
+	SELECT * FROM member WHERE name=#{name} AND tel=#{tel};
+</select>
+
+<select id="findIdResult" resultType="string">
+	SELECT id FROM member WHERE name=#{name} AND tel=#{tel};
+</select>
+
+<select id="findPw" resultMap="member">
+	SELECT * FROM member WHERE id=#{id} AND tel=#{tel};
+</select>
+
+<update id="findPwResult">
+	UPDATE member SET pw=#{secretPass} WHERE id=#{id} AND tel=#{tel};
+</update>
+	
+</mapper>

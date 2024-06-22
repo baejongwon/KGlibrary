@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+
+<mapper namespace="com.kg.library.notice.NoticeBoardMapper">
+
+    <select id="noticeBoard">
+        <choose>
+            <when test="search_select == '제목'">
+                SELECT B.* FROM (SELECT row_number() over (order by no DESC) as r, A.* FROM (SELECT
+                notice.* FROM notice WHERE title like CONCAT('%', #{search}, '%') order by no DESC)A)B WHERE B.r BETWEEN #{begin} and #{end}
+            </when>
+            <when test="search_select == '글쓴이'">
+                SELECT B.* FROM (SELECT row_number() over (order by no DESC) as r, A.* FROM (SELECT
+                notice.* FROM notice WHERE id like CONCAT('%', #{search}, '%') order by no DESC)A)B WHERE B.r BETWEEN #{begin} and #{end}
+            </when>
+            <otherwise>
+                SELECT B.* FROM (SELECT row_number() over (order by no DESC) as r, A.* FROM (SELECT
+                notice.* FROM notice order by no DESC)A)B WHERE B.r BETWEEN #{begin} and #{end}
+            </otherwise>
+        </choose>
+    </select>
+    
+    <select id="totalCount">
+        <choose>
+            <when test="search_select == '제목'">
+                SELECT count(no) FROM notice where title like CONCAT('%', #{search}, '%')
+            </when>
+            <when test="search_select == '글쓴이'">
+                SELECT count(no) FROM notice where id like CONCAT('%', #{search}, '%')
+            </when>
+            <otherwise>
+                SELECT count(no) FROM notice
+            </otherwise>
+        </choose>
+    </select>
+    <select id="noticeboard_Content"
+        resultType="com.kg.library.notice.NoticeBoardDTO">
+        SELECT * FROM notice where no = #{n}
+    </select>
+    
+   <select id="main_board">
+    SELECT * FROM notice ORDER BY no DESC LIMIT 5
+	</select>
+    
+    <insert id="noticeboard_writeProc">
+        <selectKey order="BEFORE" keyProperty="no" resultType="int">
+            SELECT COALESCE(max(no), 0) + 1 FROM notice -- Max(no)를 했는데 null이라면 0을 반환, 그게 아니면 +1
+            <!-- 위 코드가 먼저 실행된 후 나온 값이 keyProperty="no"로 인해 no라는 값에 저장되어 아래 코드로 넘어간다. -->
+        </selectKey>
+        INSERT INTO notice
+        VALUES(#{no}, #{title}, #{id}, #{content},
+        #{writeDate}, 0, #{image})
+    </insert>
+    
+    <update id="incrementHits">
+        update notice set hits = hits + 1 where no = #{n}
+    </update>
+    <update id="noticeboard_ModifyProc">
+        UPDATE notice SET title = #{title}, content = #{content}, image = #{image} WHERE no = #{no}
+    </update>
+    <delete id="ContentDeleteProc3">
+        DELETE FROM notice WHERE no = #{n}
+    </delete>
+</mapper>
+
+<!-- 
+<mapper namespace="com.kg.library.notice.NoticeBoardMapper">
+
+
+	<select id="noticeBoard">
+		<choose>
+			<when test="search_select == '제목'">
+				SELECT B.* FROM (SELECT rownum as r, A.* FROM (SELECT
+				notice.* FROM notice WHERE title like '%'||#{search}||'%' order by no
+				DESC)A)B WHERE B.r BETWEEN #{begin} and #{end}
+			</when>
+			<when test="search_select == '글쓴이'">
+				SELECT B.* FROM (SELECT rownum as r, A.* FROM (SELECT
+				notice.* FROM notice WHERE id like '%'||#{search}||'%' order by no
+				DESC)A)B WHERE B.r BETWEEN #{begin} and #{end}
+			</when>
+			<otherwise>
+				SELECT B.* FROM (SELECT rownum as r, A.* FROM (SELECT
+				notice.* FROM notice order by no DESC)A)B WHERE B.r
+				BETWEEN #{begin} and #{end}
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="totalCount">
+			<choose>
+			<when test="search_select == '제목'">
+				SELECT count(no) FROM notice where title like '%'||#{search}||'%'
+			</when>
+			<when test="search_select == '글쓴이'">
+				SELECT count(no) FROM notice where id like '%'||#{search}||'%'
+			</when>
+			<otherwise>
+				SELECT count(no) FROM notice
+			</otherwise>
+		</choose>
+	</select>
+	<select id="noticeboard_Content"
+		resultType="com.kg.library.notice.NoticeBoardDTO">
+		SELECT * FROM notice where no = #{n}
+	</select>
+	
+	<select id="main_board">
+			select A.* From (select * from notice ORDER BY no DESC)A where <![CDATA[rownum < 5 ]]>
+	</select>
+	
+	<insert id="noticeboard_writeProc">
+		<selectKey order="BEFORE" keyProperty="no" resultType="int">
+			SELECT NVL(max(no), 0)+1 FROM notice 
+		</selectKey>
+		INSERT INTO notice
+		VALUES(#{no}, #{title}, #{id}, #{content},
+		#{writeDate},0,#{image})
+	</insert>
+	
+	<update id="incrementHits">
+		update notice set hits=hits+1 where no=#{n}
+	</update>
+	<update id="noticeboard_ModifyProc">
+		UPDATE notice SET title=#{title}, content=#{content}, image=#{image} WHERE no=#{no}
+	</update>
+	<delete id="ContentDeleteProc3">
+		DELETE FROM notice WHERE no=#{n}
+	</delete>
+</mapper>
+ -->

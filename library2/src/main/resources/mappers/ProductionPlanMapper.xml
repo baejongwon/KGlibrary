@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kg.library.notice.ProductionPlanMapper">
+    <select id="getProductionAllPlanList">
+        SELECT * FROM noticeboard_cal
+    </select>
+    
+    <insert id="noticeboard_cal">
+        INSERT INTO noticeboard_cal (startDate, endDate, events) VALUES (#{startDate}, #{endDate}, #{events})
+    </insert>
+</mapper>
+<!-- 
+<mapper namespace="com.kg.library.notice.ProductionPlanMapper">
+	<select id="getProductionAllPlanList">
+		SELECT * FROM noticeboard_cal
+	</select>
+	
+	<insert id="noticeboard_cal">
+		INSERT INTO noticeboard_cal VALUES(#{startDate}, #{endDate}, #{events})
+	</insert>
+</mapper>
+ -->
