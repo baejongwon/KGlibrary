@@ -9,6 +9,19 @@ reservation_time number,
 member varchar2(30),
 duration number);
 create sequence reservation_seq;
+
+마리아db버전
+CREATE TABLE reservation (
+    reservation_num INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    room_num VARCHAR(10),
+    reservation_date VARCHAR(20),
+    reservation_time INT,
+    member VARCHAR(30),
+    duration INT
+);
+
+CREATE SEQUENCE reservation_seq;
+
 */
 
 public class ReservationDTO {

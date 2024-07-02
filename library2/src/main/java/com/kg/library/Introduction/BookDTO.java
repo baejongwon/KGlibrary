@@ -29,6 +29,25 @@ ALTER TABLE book ADD rentaldate VARCHAR2(50);
 alter table book add hitbook varchar2(50);
 alter table book modify detail_link varchar2(1000);
 
+마리아db 버전
+CREATE TABLE book (
+    no INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    category VARCHAR(50),
+    title_info VARCHAR(500),
+    author_info VARCHAR(500),
+    pub_info VARCHAR(500),
+    pub_year_info VARCHAR(50),
+    reg_date VARCHAR(50),
+    detail_link VARCHAR(1000),
+    image VARCHAR(255),
+    borrowperson VARCHAR(50),
+    book_count INT,
+    donation VARCHAR(50),
+    borrowdate TIMESTAMP,
+    rentaldate VARCHAR(50),
+    hitbook VARCHAR(50)
+);
+
 */
 public class BookDTO {
 
