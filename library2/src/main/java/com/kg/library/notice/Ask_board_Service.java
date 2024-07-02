@@ -34,7 +34,7 @@ public class Ask_board_Service {
 //	private String filePath = "C:\\Users\\user1\\git\\kglibrary\\library\\src\\main\\resources\\static\\img\\";
 
 	// s3에 이미지 추가
-	private String bucketName = "kglibrary"; // S3 버킷 이름
+	private String bucketName = "kglibrary2"; // S3 버킷 이름
 	private String s3FilePath = "static/img/"; // S3에 업로드할 경로
 
 	@Autowired
