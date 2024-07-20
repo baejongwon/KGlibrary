@@ -54,7 +54,7 @@ public class MainService {
 			headers.setContentType(MediaType.APPLICATION_JSON);
 
 			ResponseEntity<ArrayList<BookDTO>> responseEntity = restTemplate.exchange(
-					"https://www.jongwon-project.link/book/hit_book", HttpMethod.GET, new HttpEntity<>(headers),
+					"http://www.jongwon-project.link/book/hit_book", HttpMethod.GET, new HttpEntity<>(headers),
 					new ParameterizedTypeReference<ArrayList<BookDTO>>() {
 					});
 
