@@ -54,7 +54,7 @@ public class MainService {
 			headers.setContentType(MediaType.APPLICATION_JSON);
 
 			ResponseEntity<ArrayList<BookDTO>> responseEntity = restTemplate.exchange(
-					"https://www.bowfun.link/book/hit_book", HttpMethod.GET, new HttpEntity<>(headers),
+					"http://www.jongwon-project.link/book/bookForm", HttpMethod.GET, new HttpEntity<>(headers),
 					new ParameterizedTypeReference<ArrayList<BookDTO>>() {
 					});
 
@@ -98,7 +98,7 @@ public class MainService {
 			headers.setContentType(MediaType.APPLICATION_JSON);
 
 			ResponseEntity<ArrayList<BookDTO>> responseEntity = restTemplate.exchange(
-					"https://www.bowfun.link/book/new_Book", HttpMethod.GET, new HttpEntity<>(headers),
+					"http://www.jongwon-project.link/book/bookForm", HttpMethod.GET, new HttpEntity<>(headers),
 					new ParameterizedTypeReference<ArrayList<BookDTO>>() {
 					});
 
