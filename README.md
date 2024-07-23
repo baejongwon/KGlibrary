@@ -29,3 +29,36 @@ Tool :  Git, GitHub,SQL Developer<br>
   5. 문화 마당(culture)<br>
   ㄴ 문화 행사
   
+<h5>application.properties에는 aws의 rds 접속 정보와 access-key, secret-key가 포함되어 github에는 포함되어 있지 않습니다.</h5>
+
+```properties
+# OracleDB connection settings
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+
+# JSP setting
+spring.mvc.view.prefix=/jsp/
+spring.mvc.view.suffix=.jsp
+
+# mybatis framework setting
+mybatis.mapper-locations=/mappers/*.xml
+ 
+# file settings
+spring.servlet.multipart.max-file-size=10MB
+
+# server port settings
+server.port=80
+
+coolsms.apikey=
+coolsms.apisecret=
+coolsms.fromnumber=
+
+spring.redis.cluster.nodes=redis-cluster.delivery.svc.cluster.local:6379
+
+# AWS S3 Configuration
+aws.access-key=
+aws.secret-key=
+aws.region=
+aws.s3.bucket-name=
