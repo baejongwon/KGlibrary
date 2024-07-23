@@ -28,10 +28,10 @@ Tool :  Git, GitHub,SQL Developer<br>
   <br>
   5. 문화 마당(culture)<br>
   ㄴ 문화 행사
-  
+</ul>
 <h5>application.properties에는 aws의 rds 접속 정보와 access-key, secret-key가 포함되어 github에는 포함되어 있지 않습니다.</h5>
 
-```properties
+```
 # OracleDB connection settings
 spring.datasource.url=
 spring.datasource.username=
@@ -62,3 +62,400 @@ aws.access-key=
 aws.secret-key=
 aws.region=
 aws.s3.bucket-name=
+
+```
+
+
+<ul>
+<li><h4>terraform 코드</h4></li>
+vpc
+  
+```
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  region  = "ap-northeast-2"
+  profile = "admin"
+}
+
+module "vpc"{ //인터넷이 되어야 한다. git이 설치 되어있어야 github에서 받아 사용할 수 있다.
+source = "terraform-aws-modules/vpc/aws" 
+version = "~> 5.0" //5.0 대 최신 버전, 버전 별로 파라미터 네임이 바뀔 수 있으니 웬만하면 하나의 버전을 고정하여 진행 하는 것이 좋다.
+
+name = "eks-vpc"
+cidr = "172.28.0.0/16"
+azs = ["ap-northeast-2a", "ap-northeast-2c"]
+private_subnets = ["172.28.1.0/24","172.28.3.0/24" ]
+public_subnets = ["172.28.101.0/24","172.28.103.0/24"]
+
+}
+module "BastionHost_SG" {
+  source          = "terraform-aws-modules/security-group/aws"
+  version         = "~> 5.0"
+  name            = "BastionHost_SG"
+  description     = "BastionHost_SG"
+  vpc_id          = module.vpc.vpc_id
+  use_name_prefix = false
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 8080
+      to_port     = 8080
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = -1
+      to_port     = -1
+      protocol    = "icmp"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+}
+data "aws_key_pair" "ec2-key" {
+  key_name = "bootServer"
+}
+
+resource "aws_launch_template" "bastion-lt" {
+  name = "bastion-lt"
+  image_id = "ami-032a9a0e2fb604b62"
+  instance_type = "t3.medium"
+  key_name = "bootServer"
+  tags = {
+    Name = "bastion-lt"
+  }
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups = [module.BastionHost_SG.security_group_id]
+  }
+}
+
+resource "aws_autoscaling_group" "bastion-asg" {
+  name = "bastion-asg"
+  launch_template {
+    id=aws_launch_template.bastion-lt.id
+    version=aws_launch_template.bastion-lt.latest_version
+  }
+  vpc_zone_identifier = module.vpc.public_subnets
+  min_size = 1
+  max_size = 1
+}
+
+module "NAT_SG" {
+  source          = "terraform-aws-modules/security-group/aws"
+  version         = "~> 5.0"
+  name            = "NAT_SG"
+  vpc_id          = module.vpc.vpc_id
+  use_name_prefix = false
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = module.vpc.private_subnets_cidr_blocks[0]
+    },
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = module.vpc.private_subnets_cidr_blocks[1]
+    }
+  ]
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+}
+
+resource "aws_instance" "nat_ec2" {
+  ami                         = "ami-0f4c2e6aee30ccae8"
+  subnet_id                   = module.vpc.public_subnets[1]
+  instance_type               = "t2.micro"
+  key_name                    = data.aws_key_pair.ec2-key.key_name
+  source_dest_check           = false
+  associate_public_ip_address = true
+  vpc_security_group_ids      = [module.NAT_SG.security_group_id]
+  tags = {
+    Name = "nat-ec2"
+  }
+}
+
+# Private Subnet Routing Table ( dest: NAT Instance ENI )
+data "aws_route_table" "private_0" {
+  subnet_id  = module.vpc.private_subnets[0]
+  depends_on = [module.vpc]
+}
+
+data "aws_route_table" "private_1" {
+  subnet_id  = module.vpc.private_subnets[1]
+  depends_on = [module.vpc]
+}
+
+resource "aws_route" "private_subnet_0" {
+  route_table_id         = data.aws_route_table.private_0.id
+  destination_cidr_block = "0.0.0.0/0"
+  network_interface_id   = aws_instance.nat_ec2.primary_network_interface_id
+  depends_on             = [module.vpc, aws_instance.nat_ec2]
+}
+
+resource "aws_route" "private_subnet_1" {
+  route_table_id         = data.aws_route_table.private_1.id
+  destination_cidr_block = "0.0.0.0/0"
+  network_interface_id   = aws_instance.nat_ec2.primary_network_interface_id
+  depends_on             = [module.vpc, aws_instance.nat_ec2]
+}
+
+// Private Subnet Tag ( AWS Load Balancer Controller Tag / internal )
+resource "aws_ec2_tag" "private_subnet_tag1" {
+  resource_id = module.vpc.private_subnets[0]
+  key         = "kubernetes.io/role/internal-elb"
+  value       = "1"
+}
+resource "aws_ec2_tag" "private_subnet_tag2" {
+  resource_id = module.vpc.private_subnets[1]
+  key         = "kubernetes.io/role/internal-elb"
+  value       = "1"
+}
+
+// Public Subnet Tag ( AWS Load Balancer Controller Tag / internet-facing )
+resource "aws_ec2_tag" "public_subnet_tag1" {
+  resource_id = module.vpc.public_subnets[0]
+  key         = "kubernetes.io/role/elb"
+  value       = "1"
+}
+resource "aws_ec2_tag" "public_subnet_tag2" {
+  resource_id = module.vpc.public_subnets[1]
+  key         = "kubernetes.io/role/elb"
+  value       = "1"
+}
+
+
+
+//젠킨스 ec2
+module "Jenkins_SG" {
+  source          = "terraform-aws-modules/security-group/aws"
+  version         = "~> 5.0"
+  name            = "Jenkins_SG"
+  description     = "Security group for Jenkins EC2 instance"
+  vpc_id          = module.vpc.vpc_id
+  use_name_prefix = false
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 8080
+      to_port     = 8080
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = -1
+      to_port     = -1
+      protocol    = "icmp"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+}
+
+resource "aws_instance" "jenkins_it" {
+  ami                         = "ami-03c61a9f49c571621"
+  subnet_id                   = module.vpc.public_subnets[0]
+  instance_type               = "t3.large"
+  key_name                    = data.aws_key_pair.ec2-key.key_name
+  associate_public_ip_address = true
+  vpc_security_group_ids      = [module.Jenkins_SG.security_group_id]
+  tags = {
+    Name = "jenkins-it"
+  }
+}
+
+resource "aws_db_subnet_group" "main" {
+  name       = "main"
+  subnet_ids = [
+    module.vpc.public_subnets[0], # ap-northeast-2a
+    module.vpc.public_subnets[1]  # ap-northeast-2c
+  ]
+
+  tags = {
+    Name = "main"
+  }
+}
+
+//eks연결부
+module "HA" {
+  source               = "../eks"
+  vpc_id               = module.vpc.vpc_id
+  private_subnets = module.vpc.private_subnets
+  vpc_cidr_block = module.vpc.vpc_cidr_block
+}
+```
+
+eks
+
+```
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws" //모듈의 버전
+  version = "~> 19.0"
+
+  #EKS Cluster Setting
+  cluster_name    = "my-eks"
+  cluster_version = "1.28" //1.28 최신
+  vpc_id = var.vpc_id // eks workernode 생성할 vpc
+  subnet_ids = var.private_subnets
+  
+  #OIDV(OpenID Connect)구성
+  enable_irsa = true
+
+  #EKS Worker Node 정의 (ManagedNode방식 / Launch Template 자동 구성)
+  eks_managed_node_groups = {
+    initial = {   //초기 사항 이름은 변경 가능
+      
+      min_size     = 2
+      max_size     = 3
+      desired_size = 2
+      instance_types = ["t3.large"]
+      vpc_security_group_ids = [module.add_node_sg.security_group_id]
+    }
+  }
+
+ # public-subnet(bastion)과 API와 통신하기 위해 설정(443)
+  cluster_additional_security_group_ids = [module.add_cluster_sg.security_group_id]
+  cluster_endpoint_public_access        = true // public에서 접근 가능하게 한다
+
+
+  # K8s ConfigMap Object "aws_auth" 구성
+  manage_aws_auth_configmap = true
+  aws_auth_users = [
+    {
+      userarn  = "arn:aws:iam::${data.aws_iam_user.EKS_Admin_ID.id}:user/admin"
+      username = "admin"
+      groups   = ["system:masters"]
+    }
+  ]
+}
+
+
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name, "--profile", "admin"]
+  }
+}
+
+  data "aws_iam_user" "EKS_Admin_ID"{
+    user_name = "admin"
+  }
+
+module "add_cluster_sg" {
+  source      = "terraform-aws-modules/security-group/aws"
+  version     = "~> 5.0"
+  name        = "add_cluster_sg"
+  description = "add_cluster_sg"
+
+  vpc_id          = var.vpc_id
+  use_name_prefix = false
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = var.vpc_cidr_block
+    }
+  ]
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+}
+module "add_node_sg" {
+  source      = "terraform-aws-modules/security-group/aws"
+  version     = "~> 5.0"
+  name        = "add_node_sg"
+  description = "add_node_sg"
+
+  vpc_id          = var.vpc_id
+  use_name_prefix = false
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = var.vpc_cidr_block
+    }
+  ]
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+}
+```
+
+variable
+
+```
+variable "vpc_id" {
+  type = string
+}
+variable "private_subnets" {
+  type = list(string)
+}
+variable "vpc_cidr_block" {
+  type = string
+}
+```
+
+
+</ul>
