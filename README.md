@@ -1,4 +1,4 @@
-# 배종원의 프로젝트 입니다.
+# 프로젝트 KGlibrary 입니다.
 
 
 
@@ -63,6 +63,195 @@ aws.secret-key=
 aws.region=
 aws.s3.bucket-name=
 
+```
+<ul>
+<li><h4>메인 페이지에 추천도서 / 신작도서 정보 요청</h4></li>
+
+요청<br>
+Controller
+
+```
+	@RequestMapping("main")
+	public String main(Model model) {
+		notice_service.main_board(model);
+		clture_Service.main_board(model);
+		main_Service.hit_book(model);
+		main_Service.new_book(model);
+		return "default/main";
+	}
+```
+
+
+Service
+
+```
+	 	public void hit_book(Model model) {
+
+		try {
+
+			RestTemplate restTemplate = new RestTemplate();
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+
+			ResponseEntity<ArrayList<BookDTO>> responseEntity = restTemplate.exchange(
+					"https://www.jongwon-project.link/book/hit_book", HttpMethod.GET, new HttpEntity<>(headers),
+					new ParameterizedTypeReference<ArrayList<BookDTO>>() {
+					});
+
+			ArrayList<BookDTO> hitbooks = responseEntity.getBody();
+			ArrayList<String> imageUrls = new ArrayList<>();
+
+			if (hitbooks != null) {
+				for (BookDTO b : hitbooks) {
+					if (b.getImage() == null || b.getImage().trim().isEmpty()) {
+						b.setImage("20240109150111-40641325628.20230718121618.jpg");
+						continue;
+					}
+					System.out.println("받아온 hitbook : "+ b.getImage());
+					b.setImage(getS3ObjectUri(b.getImage()));
+				}
+			}
+			// 모델에 데이터 추가
+			model.addAttribute("hitbooks", hitbooks);
+			model.addAttribute("imageUrls", imageUrls);
+
+		} catch (HttpClientErrorException.NotFound notFoundException) {
+			// 404 Not Found 에러 처리
+			logger.error("Server returned 404 Not Found");
+		} catch (Exception e) {
+			// 기타 예외 처리
+			logger.error("An error occurred while fetching data from the server", e);
+		}
+
+	}
+
+	public void new_book(Model model) {
+
+		try {
+
+			RestTemplate restTemplate = new RestTemplate();
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+
+			ResponseEntity<ArrayList<BookDTO>> responseEntity = restTemplate.exchange(
+					"https://www.jongwon-project.link/book/new_Book", HttpMethod.GET, new HttpEntity<>(headers),
+					new ParameterizedTypeReference<ArrayList<BookDTO>>() {
+					});
+
+			ArrayList<BookDTO> newBooks = responseEntity.getBody();
+			ArrayList<String> imageUrls = new ArrayList<>();
+			
+			if (newBooks != null) {
+				for (BookDTO b : newBooks) {
+					if (b.getImage() == null || b.getImage().trim().isEmpty()) {
+						b.setImage("20240109150111-40641325628.20230718121618.jpg");
+						continue;
+					}
+					if (b.getCategory().equals("API")) // API에서 받아온 이미지 라면
+					{
+						continue;
+					}
+					String imageUrl = getS3ObjectUri(b.getImage());
+					imageUrls.add(imageUrl);
+				}
+			}
+			model.addAttribute("newBooks", newBooks);
+			model.addAttribute("imageUrls", imageUrls);
+
+		} catch (HttpClientErrorException.NotFound notFoundException) {
+			logger.error("Server returned 404 Not Found");
+		} catch (Exception e) {
+			logger.error("An error occurred while fetching data from the server", e);
+		}
+	}
+```
+
+응답<br>
+Controller
+
+```
+	@GetMapping("book/hit_book")
+	 @ResponseBody
+	 public ResponseEntity<ArrayList<BookDTO>> hitBook()  {
+		   try {
+			   System.err.println("hit book 요청 연결 성공");
+	            ArrayList<BookDTO> hitbooks = service.hitBook();
+
+	            // 받아온 데이터 출력
+	            for (BookDTO b : hitbooks) {
+	                System.out.println("No: " + b.getNo());
+	                System.out.println("Image: " + b.getImage());
+	                System.out.println("Title Info: " + b.getTitle_info());
+	                System.out.println("Author Info: " + b.getAuthor_info());
+	            }
+
+	            return ResponseEntity.ok(hitbooks); // 정상적인 응답
+	        } catch (Exception e) {
+	            // 예외 발생 시 출력
+	            System.err.println("hit book 요청 연결 실패");
+	            e.printStackTrace();
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
+	        }
+	    }
+	 @GetMapping("book/new_Book")
+	 @ResponseBody
+	    public ResponseEntity<ArrayList<BookDTO>> newBook() {
+		   try {
+			   System.err.println("new book 요청 연결 성공");
+	            ArrayList<BookDTO> newBooks = service.newBook();
+
+	            for (BookDTO b : newBooks) {
+	            	System.out.print("\u001B[31m");
+	                System.out.println("8087newbook No: " + b.getNo());
+	                System.out.println("8087newbook Image: " + b.getImage());
+	                System.out.println("8087newbook Title Info: " + b.getTitle_info());
+	                System.out.println("8087newbook Author Info: " + b.getAuthor_info());
+	                System.out.print("\u001B[0m");
+	            }
+
+	            return ResponseEntity.ok(newBooks);
+	        } catch (Exception e) {
+	            System.err.println("new book 요청 연결 실패");
+	            e.printStackTrace();
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ArrayList<>());
+	        }
+	    }
+	
+```
+
+Service
+
+```
+public ArrayList<BookDTO> hitBook() {
+
+		ArrayList<BookDTO> hitbooks = mapper.hitbooks();
+		if (hitbooks != null) {
+			for (BookDTO b : hitbooks) {
+				if (b.getImage() == null || b.getImage().trim().isEmpty()) {
+					b.setImage("20240109150111-40641325628.20230718121618.jpg");
+					continue;
+				}
+
+			}
+		}
+		return hitbooks;
+	}
+	public ArrayList<BookDTO> newBook() {
+
+		ArrayList<BookDTO> newBooks = mapper.newbooks();
+		if (newBooks != null) {
+			for (BookDTO b : newBooks) {
+				if (b.getImage() == null || b.getImage().trim().isEmpty()) {
+					b.setImage("20240109150111-40641325628.20230718121618.jpg");
+					continue;
+				}
+
+			}
+		}
+		return newBooks;
+	}
 ```
 
 
