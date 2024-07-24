@@ -1,4 +1,4 @@
-# 프로젝트 KGlibrary 입니다.
+# 배종원의 프로젝트 KGlibrary 입니다.
 
 
 
