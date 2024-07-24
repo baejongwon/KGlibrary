@@ -254,6 +254,17 @@ public ArrayList<BookDTO> hitBook() {
 	}
 ```
 
+mapper
+
+```
+	<select id="hitbooks" resultType="com.kg.library_1.book.BookDTO">
+		SELECT * FROM book WHERE hitbook = 'yes' AND book_count = 1 ORDER BY no DESC LIMIT 3
+	</select>
+
+	<select id="newbooks" resultType="com.kg.library_1.book.BookDTO">
+		SELECT * FROM book WHERE book_count = 1 ORDER BY reg_date DESC LIMIT 3
+	</select>
+```
 
 <ul>
 <li><h4>terraform 코드</h4></li>
