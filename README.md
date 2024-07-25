@@ -34,42 +34,6 @@ AWS : EC2 / RDS / Load Balancer / Auto Scaling Group / S3 / ECR / EKS
 
 
 # 구현 기능
-
-<h5>application.properties에는 aws의 rds 접속 정보와 access-key, secret-key가 포함되어 github에는 포함되어 있지 않습니다.</h5>
-
-```
-# OracleDB connection settings
-spring.datasource.url=
-spring.datasource.username=
-spring.datasource.password=
-spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
-
-# JSP setting
-spring.mvc.view.prefix=/jsp/
-spring.mvc.view.suffix=.jsp
-
-# mybatis framework setting
-mybatis.mapper-locations=/mappers/*.xml
- 
-# file settings
-spring.servlet.multipart.max-file-size=10MB
-
-# server port settings
-server.port=80
-
-coolsms.apikey=
-coolsms.apisecret=
-coolsms.fromnumber=
-
-spring.redis.cluster.nodes=redis-cluster.delivery.svc.cluster.local:6379
-
-# AWS S3 Configuration
-aws.access-key=
-aws.secret-key=
-aws.region=
-aws.s3.bucket-name=
-
-```
   
   ### 회원 가입 및 관리(member)
   [공통]
@@ -119,6 +83,45 @@ aws.s3.bucket-name=
  [관리자]
 
  - 제목, 행사기간, 신청기간, 수강대상, 행사장소, 접수장소, 모집 인원, 참가비, 강사명, 내용, 업로드 파일 선택 후 행사 게시글 작성 가능
+
+
+<br>
+
+<h5>application.properties에는 aws의 rds 접속 정보와 access-key, secret-key가 포함되어 github에는 포함되어 있지 않습니다.</h5>
+
+```
+# OracleDB connection settings
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+
+# JSP setting
+spring.mvc.view.prefix=/jsp/
+spring.mvc.view.suffix=.jsp
+
+# mybatis framework setting
+mybatis.mapper-locations=/mappers/*.xml
+ 
+# file settings
+spring.servlet.multipart.max-file-size=10MB
+
+# server port settings
+server.port=80
+
+coolsms.apikey=
+coolsms.apisecret=
+coolsms.fromnumber=
+
+spring.redis.cluster.nodes=redis-cluster.delivery.svc.cluster.local:6379
+
+# AWS S3 Configuration
+aws.access-key=
+aws.secret-key=
+aws.region=
+aws.s3.bucket-name=
+
+```
 
 <!-- 
 <ul>
