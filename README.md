@@ -4,7 +4,8 @@
 
 > 1. [사용 기술 및 개발환경](#사용-기술-및-개발환경)
 > 2. [인프라 아키텍처](#인프라-아키텍처)
-> 3. [테라폼 코드](#테라폼-코드)
+> 3. [구현 기능](#구현-기능)
+> 4. [테라폼 코드](#테라폼-코드)
 >   + [vpc](#vpc)
 >   + [eks](#eks) 
 >   + [variable](#variable)
@@ -24,10 +25,10 @@ AWS : EC2 / RDS / Load Balancer / Auto Scaling Group / S3 / ECR / EKS
 <img src="https://github.com/baejongwon/jongwon-git-img/blob/main/Infrastructure%20Architecture.jpg" width=1200px alt="아키텍처"> 
 
 
-<h3>내용</h3>
+# 구현 기능
 
 <ul>
-  <li><h4>구현 기능</h4></li>
+
   1.회원 가입 및 관리(member)<br>
   ㄴ 로그인 / 회원가입 / 아이디,비밀번호 찾기 / 회원 수정 / 내 예약 조회 / 지난 예약 조회 / 대출 목록 / 회원 탈퇴 / 회원 관리(관리자만)<br>
   <br>
