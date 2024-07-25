@@ -4,22 +4,22 @@
 
 > 1. [ERD 구조](#erd-구조)
 > 2. [시스템 아키텍처](#시스템-아키텍처)
-> 3. [기술 스택](#기술-스택)
+> 3. [사용 기술 및 개발환경](#사용-기술-및-개발환경)
 > 4. [테라폼 코드](#테라폼-코드)
->   + 공통 : [회원가입, 로그인](#회원가입-로그인) | [상품 목록 및 상품 상세 조회](#상품-목록-및-상품-상세-조회)
->   + 사용자 : [장바구니 관리](#장바구니-관리) | [주문 관리](#주문-관리) | [리뷰 관리](#리뷰-관리)
->   + 관리자 : [상품 및 상품 카테고리 관리](#상품-및-상품-카테고리-관리) | [옵션 및 옵션 카테고리 관리](#옵션-및-옵션-카테고리-관리) | [주문 관리](#주문-관리)
-> 5. [API 명세](#api-명세)
-> 6. [형상 관리 - Notion, Jira](#형상-관리)
-> 7. [팀 문화](#팀-문화)
+>   + vpc(#vpc) : [회원가입, 로그인]
+>   + eks(#eks) : [장바구니 관리]
+>   + variable(#variable) : [상품 및 상품 카테고리 관리]
 
-<h3>사용 기술 및 개발환경</h3>
+
+# 사용 기술 및 개발환경
 server : Apach Tomcat 9 <br>
 DB : MariaDB 10.6.14 <br>
 Data Store : Redis<br>
 Framework/Flatform : Spring MVC, SpringSecurity, MyBatis, Bootstrap, jQuery, Jsp, RESTful API<br>
 Language : JAVA(version 17), Javascript, HTML5, CSS3<br>
 Tool :  Git, GitHub,SQL Developer<br>
+CI/CD : Jenkins, ArgoCD
+AWS : EC2 / RDS / Load Balancer / Auto Scaling Group / S3 / ECR / EKS
 
 <h3>내용</h3>
 
@@ -291,7 +291,7 @@ mapper
 
 # 테라폼 코드
 
-vpc
+## vpc
   
 ```
 terraform {
@@ -553,7 +553,7 @@ module "HA" {
 }
 ```
 
-eks
+## eks
 
 ```
 module "eks" {
@@ -666,7 +666,7 @@ module "add_node_sg" {
 }
 ```
 
-variable
+## variable
 
 ```
 variable "vpc_id" {
