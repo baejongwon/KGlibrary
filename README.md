@@ -22,7 +22,7 @@ CI/CD : Jenkins, ArgoCD
 AWS : EC2 / RDS / Load Balancer / Auto Scaling Group / S3 / ECR / EKS
 
 # 인프라-아키텍처
-<img src="https://github.com/baejongwon/jongwon-git-img.git/인프라 아키텍처.jpg" width=600px alt="아키텍처"> 
+<img src="https://github.com/baejongwon/jongwon-git-img/blob/main/Infrastructure%20Architecture.jpg" width=1200px alt="아키텍처"> 
 
 
 <h3>내용</h3>
