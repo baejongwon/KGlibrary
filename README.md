@@ -3,12 +3,12 @@
 ### 목차
 
 > 1. [ERD 구조](#erd-구조)
-> 2. [시스템 아키텍처](#시스템-아키텍처)
+> 2. [인프라 아키텍처](#인프라-아키텍처)
 > 3. [사용 기술 및 개발환경](#사용-기술-및-개발환경)
 > 4. [테라폼 코드](#테라폼-코드)
->   + vpc(#vpc) : [회원가입, 로그인]
->   + eks(#eks) : [장바구니 관리]
->   + variable(#variable) : [상품 및 상품 카테고리 관리]
+>   + [vpc](#vpc)
+>   + [eks](#eks) 
+>   + [variable](#variable)
 
 
 # 사용 기술 및 개발환경
@@ -20,6 +20,10 @@ Language : JAVA(version 17), Javascript, HTML5, CSS3<br>
 Tool :  Git, GitHub,SQL Developer<br>
 CI/CD : Jenkins, ArgoCD
 AWS : EC2 / RDS / Load Balancer / Auto Scaling Group / S3 / ECR / EKS
+
+# 인프라-아키텍처
+<img src="https://github.com/baejongwon/jongwon-git-img.git/인프라 아키텍처.jpg" width=600px alt="아키텍처"> 
+
 
 <h3>내용</h3>
 
