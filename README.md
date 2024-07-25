@@ -24,6 +24,9 @@ AWS : EC2 / RDS / Load Balancer / Auto Scaling Group / S3 / ECR / EKS
 # 인프라-아키텍처
 <img src="https://github.com/baejongwon/jongwon-git-img/blob/main/Infrastructure%20Architecture.jpg" width=1200px alt="아키텍처"> 
 
+# CI/CD 구성
+<img src="https://github.com/baejongwon/jongwon-git-img/blob/main/cicd.png" width=1200px alt="cicd구성"> 
+
 
 # 구현 기능
 
