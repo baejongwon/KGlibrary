@@ -356,9 +356,9 @@ provider "aws" {
   profile = "admin"
 }
 
-module "vpc"{ //인터넷이 되어야 한다. git이 설치 되어있어야 github에서 받아 사용할 수 있다.
+module "vpc"{ 
 source = "terraform-aws-modules/vpc/aws" 
-version = "~> 5.0" //5.0 대 최신 버전, 버전 별로 파라미터 네임이 바뀔 수 있으니 웬만하면 하나의 버전을 고정하여 진행 하는 것이 좋다.
+version = "~> 5.0" 
 
 name = "eks-vpc"
 cidr = "172.28.0.0/16"
@@ -618,7 +618,7 @@ module "eks" {
 
   #EKS Worker Node 정의 (ManagedNode방식 / Launch Template 자동 구성)
   eks_managed_node_groups = {
-    initial = {   //초기 사항 이름은 변경 가능
+    initial = {   
       
       min_size     = 2
       max_size     = 3
@@ -630,7 +630,7 @@ module "eks" {
 
  # public-subnet(bastion)과 API와 통신하기 위해 설정(443)
   cluster_additional_security_group_ids = [module.add_cluster_sg.security_group_id]
-  cluster_endpoint_public_access        = true // public에서 접근 가능하게 한다
+  cluster_endpoint_public_access        = true 
 
 
   # K8s ConfigMap Object "aws_auth" 구성
