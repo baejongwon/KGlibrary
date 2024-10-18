@@ -12,10 +12,7 @@
 >   + [도서관 소개](#도서관-소개introduction)
 >   + [이용자 마당](#이용자마당notice)
 >   + [문화 마당](#문화-마당culture)
-> 4. [테라폼 코드](#테라폼-코드)
->   + [vpc](#vpc)
->   + [eks](#eks) 
->   + [variable](#variable)
+
 
 
 # 사용 기술 및 개발환경
@@ -89,41 +86,6 @@ AWS : EC2 / RDS / Load Balancer / Auto Scaling Group / S3 / ECR / EKS
 
 <br>
 
-<h5>application.properties에는 aws의 rds 접속 정보와 access-key, secret-key가 포함되어 github에는 포함되어 있지 않습니다.</h5>
-
-```
-# OracleDB connection settings
-spring.datasource.url=
-spring.datasource.username=
-spring.datasource.password=
-spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
-
-# JSP setting
-spring.mvc.view.prefix=/jsp/
-spring.mvc.view.suffix=.jsp
-
-# mybatis framework setting
-mybatis.mapper-locations=/mappers/*.xml
- 
-# file settings
-spring.servlet.multipart.max-file-size=10MB
-
-# server port settings
-server.port=80
-
-coolsms.apikey=
-coolsms.apisecret=
-coolsms.fromnumber=
-
-spring.redis.cluster.nodes=redis-cluster.delivery.svc.cluster.local:6379
-
-# AWS S3 Configuration
-aws.access-key=
-aws.secret-key=
-aws.region=
-aws.s3.bucket-name=
-
-```
 
 <!-- 
 <ul>
