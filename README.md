@@ -31,6 +31,8 @@ AWS : EC2 / RDS / Load Balancer / Auto Scaling Group / S3 / ECR / EKS
 # CI/CD 구성
 <img src="https://github.com/baejongwon/jongwon-git-img/blob/main/cicd.png" width=1200px alt="cicd구성"> 
 
+### ECR로 도커 이미지 관리
+- 젠킨스에서 ECR로 도커이미지를 push --> AgroCD에서 ECR에 있는 이미지를 사용해서 배포하도록 하였습니다.
 <img src="https://github.com/baejongwon/jongwon-git-img/blob/main/ECR.jpg" width=1200px alt="ECR이미지관리"> 
 
 
