@@ -18,7 +18,7 @@
 # 사용 기술 및 개발환경
 server : Apach Tomcat 9 <br>
 DB : MariaDB 10.6.14 <br>
-Data Store : Redis<br>
+Data Store : Redis(login session관리)<br>
 Framework/Flatform : Spring MVC, SpringSecurity, MyBatis, Bootstrap, jQuery, Jsp, RESTful API<br>
 Language : JAVA(version 17), Javascript, HTML5, CSS3<br>
 Tool :  Git, GitHub,SQL Developer<br>
